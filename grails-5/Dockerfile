@@ -1,9 +1,16 @@
-FROM openjdk:8
+FROM openjdk:17
 MAINTAINER Manuel Ortiz Bey <ortiz.manuel@mozartanalytics.com>
 
 # Set customizable env vars defaults.
 # Set Grails version (default: 3.2.8; min: 3.0.0; max: 3.2.8).
-ENV GRAILS_VERSION 3.3.8
+ENV GRAILS_VERSION 5.3.0
+
+RUN microdnf update \
+ && microdnf install --nodocs wget unzip \
+ && microdnf clean all \
+ && rm -rf /var/cache/yum
+
+
 
 # Install Grails
 WORKDIR /usr/lib/jvm
@@ -15,6 +22,7 @@ RUN wget https://github.com/grails/grails-core/releases/download/v$GRAILS_VERSIO
 # Setup Grails path.
 ENV GRAILS_HOME /usr/lib/jvm/grails
 ENV PATH $GRAILS_HOME/bin:$PATH
+ENV GRADLE_VERSION 7.6.1
 
 # Setup Gradle.
 
@@ -22,9 +30,9 @@ ENV PATH $GRAILS_HOME/bin:$PATH
 
 WORKDIR /gradle
 
-RUN curl -L https://services.gradle.org/distributions/gradle-3.5-bin.zip -o gradle-3.5-bin.zip
-RUN unzip gradle-3.5-bin.zip
-ENV GRADLE_HOME=/gradle/gradle-3.5
+RUN curl -L https://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip -o gradle-$GRADLE_VERSION-bin.zip
+RUN unzip gradle-$GRADLE_VERSION-bin.zip
+ENV GRADLE_HOME=/gradle/gradle-$GRADLE_VERSION
 ENV PATH=$PATH:$GRADLE_HOME/bin
 RUN gradle --version
 
